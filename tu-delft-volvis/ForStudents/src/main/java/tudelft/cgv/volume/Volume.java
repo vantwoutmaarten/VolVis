@@ -84,15 +84,22 @@ public class Volume {
     ////////////////////////////////////////////////////////////////////// 
         
     // Function that computes the weights for one of the 4 samples involved in the 1D interpolation 
-    public float weight (float x, Boolean one_two_sample)
-    {
-         float result=1.0f;
-         
-         // to be implemented
-       
-         return (float)result; 
-   }
-    
+    private float weight (float x, Boolean one_two_sample)
+     {
+         //Calculates the absolute value of X, X^2 and X^3.
+         float X = Math.abs(x);
+         float X2 = (float) Math.pow(X,2);
+         float X3 = (float) Math.pow(X,3);
+
+          // Compute the cubic interpolation kernel
+         if(0<=X && X<1){
+             return (float)(a+2)*X3-(a+3)*X2+1;
+         } else if(1<=X && X<2) {
+             return (float)a*X3-5*a*X2+8*a*X-4*a;
+         } else {
+             return (float)0;
+         }
+    } 
     //////////////////////////////////////////////////////////////////////
     ///////////////// FUNCTION TO BE IMPLEMENTED /////////////////////////
     ////////////////////////////////////////////////////////////////////// 
@@ -101,27 +108,68 @@ public class Volume {
     // We assume the out of bounce checks have been done earlier
     
     public float cubicinterpolate(float g0, float g1, float g2, float g3, float factor) {
-       
-        // to be implemented              
-        
-        float result = 1.0f;
-                            
+        // Compute the weights for the samples of the cubic interpolation kernel
+        float h0 = weight(factor+1,true);
+        float h1 = weight(factor,true);
+        float h2 = weight(factor-1,true);
+        float h3 = weight(factor-2,true);
+
+        float fx = g0*h0+g1*h1+g2*h2+g3*h3;
+        //take into account the exceptions
+        if (fx < 0) {
+            return 0;
+        }
+        if (fx > 255) {
+            return 255;
+        }
+        float result = fx;                   
         return result; 
     }
-        
+    
     //////////////////////////////////////////////////////////////////////
     ///////////////// FUNCTION TO BE IMPLEMENTED /////////////////////////
     ////////////////////////////////////////////////////////////////////// 
     // 2D cubic interpolation implemented here. We do it for plane XY. Coord contains the position.
     // We assume the out of bounce checks have been done earlier
-    public float bicubicinterpolateXY(double[] coord,int z) {
-            
-        // to be implemented              
+    public float bicubicinterpolateXY(double[] coord, int z) {
+        // Interpolation can be seperated per axis 2D
+        float Gx0, Gx1, Gx2, Gx3;
+        /* notice that in this framework we assume that the distance between neighbouring voxels is 1 in all directions*/
+        int x = (int) Math.floor(coord[0]);
+        int y = (int) Math.floor(coord[1]);
         
-        float result = 1.0f;
-                            
-        return result; 
+        //These factors can be computed in the same way as was done with the linearinterpolation
+        float fac_X = (float) (coord[0] - x);
+        float fac_Y = (float) (coord[1] - y);
 
+        //First we interpolate points with the same y-coord on the sides along the x-axis
+        Gx0 = cubicinterpolate(
+                (float) getVoxel(x - 1, y - 1, z),
+                (float) getVoxel(x, y - 1, z),
+                (float) getVoxel(x + 1, y - 1, z),
+                (float) getVoxel(x + 2, y - 1, z),
+                fac_X);
+        Gx1 = cubicinterpolate(
+                (float) getVoxel(x - 1, y, z),
+                (float) getVoxel(x, y, z),
+                (float) getVoxel(x + 1, y, z),
+                (float) getVoxel(x + 2, y, z),
+                fac_X);
+        Gx2 = cubicinterpolate(
+                (float) getVoxel(x - 1, y + 1, z),
+                (float) getVoxel(x, y + 1, z),
+                (float) getVoxel(x + 1, y + 1, z),
+                (float) getVoxel(x + 2, y + 1, z),
+                fac_X);
+        Gx3 = cubicinterpolate(
+                (float) getVoxel(x - 1, y + 2, z),
+                (float) getVoxel(x, y + 2, z),
+                (float) getVoxel(x + 1, y + 2, z),
+                (float) getVoxel(x + 2, y + 2, z),
+                fac_X);
+        //Secondly, we interpolate the points along the y-axis with the found interpolations from the x-axis
+        float result = cubicinterpolate(Gx0, Gx1, Gx2, Gx3, fac_Y);
+        return result;
     }
             
     //////////////////////////////////////////////////////////////////////
@@ -134,17 +182,27 @@ public class Volume {
                 || coord[2] < 1 || coord[2] > (dimZ-3)) {
             return 0;
         }
-       
-
-        // to be implemented              
-        float result = 1.0f;
-                            
-        return result; 
+       /*Again interpolation can be seperated per axis. Therefore, below we only have to do a cubicinterpolation
+       with the values that can be found by doing the bicubicinterpolation for the 4 different XY planes.
+        */
+        int z = (int) Math.floor(coord[2]);
+        float fac_Z = (float) (coord[2] - z);
         
+        float y0, y1, y2, y3;
+        
+        y0 = bicubicinterpolateXY(coord, z - 1);
+        y1 = bicubicinterpolateXY(coord, z);
+        y2 = bicubicinterpolateXY(coord, z + 1);
+        y3 = bicubicinterpolateXY(coord, z + 2);
 
+        float result = cubicinterpolate(y0, y1, y2, y3, fac_Z);
+        //Take into account the out of bounds coordinates
+        result = Math.max(0, result);
+        result = Math.min(255, result);
+        
+        return result; 
     }
-
-
+    
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////

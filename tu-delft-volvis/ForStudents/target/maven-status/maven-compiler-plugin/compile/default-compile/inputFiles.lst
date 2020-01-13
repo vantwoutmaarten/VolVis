@@ -1,19 +1,19 @@
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volume\VolumeIO.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\RaycastRendererPanel.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\TransferFunctionEditor.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\TransferFunction2DView.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\TransferFunction2D.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\TransferFunction2DEditor.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\Renderer.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\Visualization.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\VolVisApplication.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\util\VectorMath.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volume\VoxelGradient.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volume\GradientVolume.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\util\TrackballInteractor.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\TransferFunction.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\gui\TransferFunctionView.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volume\Volume.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\TFColor.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\util\TFChangeListener.java
-C:\Users\mathijs\Documents\GitHub\tu-delft-volvis\ForStudents\src\main\java\tudelft\cgv\volvis\RaycastRenderer.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/RaycastRenderer.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/Renderer.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/TransferFunctionView.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/util/TrackballInteractor.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/util/VectorMath.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/Visualization.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/TransferFunction2DEditor.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/RaycastRendererPanel.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volume/VoxelGradient.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/TransferFunction2DView.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volume/Volume.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/TransferFunction.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/util/TFChangeListener.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/TransferFunctionEditor.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/TransferFunction2D.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/gui/VolVisApplication.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volume/VolumeIO.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volvis/TFColor.java
+/Users/berendjanlange/GitDrive/TU Delft/Data Visualization/VolVis/tu-delft-volvis/ForStudents/src/main/java/tudelft/cgv/volume/GradientVolume.java
