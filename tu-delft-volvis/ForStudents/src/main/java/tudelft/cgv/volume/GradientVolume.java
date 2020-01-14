@@ -79,8 +79,38 @@ public class GradientVolume {
     public VoxelGradient getGradient(double[] coord) {
         
         // to be implemented
+        if (coord[0] < 0 || coord[0] > (dimX-2) || coord[1] < 0 || coord[1] > (dimY-2)
+                || coord[2] < 0 || coord[2] > (dimZ-2)) {
+            return zero;
+        }
+        
+        int x = (int) Math.floor(coord[0]); 
+        int y = (int) Math.floor(coord[1]);
+        int z = (int) Math.floor(coord[2]);
+        
+        float fac_x = (float) coord[0] - x;
+        float fac_y = (float) coord[1] - y;
+        float fac_z = (float) coord[2] - z;
 
-        return getGradientNN(coord);
+        // VoxelGradients
+        VoxelGradient vg0 = new VoxelGradient();
+        VoxelGradient vg1 = new VoxelGradient();
+        VoxelGradient vg2 = new VoxelGradient();
+        VoxelGradient vg3 = new VoxelGradient();
+        VoxelGradient vg4 = new VoxelGradient();
+        VoxelGradient vg5 = new VoxelGradient();
+        VoxelGradient vg6 = new VoxelGradient();
+      
+        // Interpolation
+        interpolate(getGradient(x, y, z), getGradient(x+1, y, z), fac_x, vg0 );              //t0
+        interpolate(getGradient(x, y+1, z), getGradient(x+1, y+1, z), fac_x, vg1);           //t1
+        interpolate(getGradient(x, y, z+1), getGradient(x+1, y, z+1), fac_x, vg2);           //t2    
+        interpolate(getGradient(x, y+1, z+1), getGradient(x+1, y+1, z+1), fac_x, vg3);       //t3
+        interpolate(vg0, vg1, fac_y, vg4);
+        interpolate(vg2, vg3, fac_y, vg5);
+        interpolate(vg4, vg5, fac_z, vg6);
+        
+        return vg6;
 
     }
     

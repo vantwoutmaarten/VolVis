@@ -425,8 +425,70 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         // To be implemented 
         
-        TFColor color = new TFColor(0,0,0,1);
+        // Material color == voxel_color
+        // Material property k, alfa
+        double ka = 0.1;
+        double kd = 0.7;
+        double ks = 0.2;
+        int alfa = 100;
         
+        double[] lightProperty_a = {1,1,1}; 
+        double[] lightProperty_d = {1,1,1}; 
+        double[] lightProperty_s = {1,1,1}; 
+
+        TFColor color;
+
+        //fish doesn't exist
+        //if (gradient.x == 0 && gradient.y == 0 && gradient.z == 0) return voxel_color; 
+        if(gradient.mag == 0)   return voxel_color;
+
+        //norm gradiente
+        double[] gradVec = {gradient.x / gradient.mag, gradient.y / gradient.mag, gradient.z / gradient.mag};
+
+        //norm light
+        double lightNorm = VectorMath.length(lightVector);  //Math.sqrt(Math.pow(lightVector[0], 2) + Math.pow(lightVector[1], 2) + Math.pow(lightVector[2], 2));
+        if(lightNorm == 0) return voxel_color;
+        double[] lightNormVector = {lightVector[0] / lightNorm, lightVector[1] / lightNorm, lightVector[2] / lightNorm};
+
+        //norm ray
+        double rayNorm = VectorMath.length(rayVector);  //Math.sqrt(Math.pow(rayVector[0], 2) + Math.pow(rayVector[1], 2) + Math.pow(rayVector[2], 2));
+        if(rayNorm == 0) return voxel_color;
+        double[] rayNormVector = {rayVector[0] / rayNorm, rayVector[1] / rayNorm, rayVector[2] / rayNorm};
+
+        //cos 1
+        double cos1 = VectorMath.dotproduct(lightNormVector, gradVec);
+
+        //R
+        double[] twice_gradVec = {gradVec[0] * 2, gradVec[1] * 2, gradVec[2] * 2};
+        double x = VectorMath.dotproduct(twice_gradVec, lightNormVector);
+        double[] x_gradVec = {gradVec[0] * x, gradVec[1] * x, gradVec[2] * x};
+        double[] R = {x_gradVec[0] - lightNormVector[0], x_gradVec[1] - lightNormVector[1], x_gradVec[2] - lightNormVector[2]};
+        double cos2 = VectorMath.dotproduct(rayNormVector,R );
+
+        double r = lightProperty_a[0] * ka * voxel_color.r + lightProperty_d[0] * kd * voxel_color.r * cos1 + lightProperty_s[0] * ks * voxel_color.r * Math.pow(cos2, alfa);
+        double g = lightProperty_a[1] * ka * voxel_color.g + lightProperty_d[1] * kd * voxel_color.g * cos1 + lightProperty_s[1] * ks * voxel_color.g * Math.pow(cos2, alfa);
+        double b = lightProperty_a[2] * ka * voxel_color.b + lightProperty_d[2] * kd * voxel_color.b * cos1 + lightProperty_s[2] * ks * voxel_color.b * Math.pow(cos2, alfa);
+      
+        if (r < 0) {
+            r = 0;
+        }
+        if (g < 0) {
+            g = 0;
+        }
+        if (b < 0) {
+            b = 0;
+        }
+        if (r > 1) {
+            r = 1;
+        }
+        if (g > 1) {
+            g = 1;
+        }
+        if (b > 1) {
+            b = 1;
+        }
+       
+        color = new TFColor(r, g, b, voxel_color.a);
         
         return color;
     }
