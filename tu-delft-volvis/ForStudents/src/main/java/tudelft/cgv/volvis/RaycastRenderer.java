@@ -232,8 +232,10 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         
         //the current position is initialized as the entry point + 1 increment
         double[] currentPos = new double[3];
+        double[] previousPos = new double[3];
         VectorMath.setVector(currentPos, entryPoint[0], entryPoint[1], entryPoint[2]);
-        
+        VectorMath.setVector(previousPos, currentPos[0] - increments[0], currentPos[1] - increments[1], currentPos[2] - increments[2]);
+
         // the previous point is initialized as the entry point
 //        double[] currentPos = new double[3];
 //        VectorMath.setVector(currentPos, entryPoint[0], entryPoint[1], entryPoint[2]);
@@ -241,7 +243,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         //Initialization of the colors as floating point values
         double r, g, b;
         double alpha = 0.0;
-        double value;
+        float value;
+        float previousValue;
         
         
          // isoColor contains the isosurface color from the interface
@@ -253,13 +256,18 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         // To be Implemented this function right now just gives back a constant color
         do {
             value = volume.getVoxelLinearInterpolate(currentPos);
-            
+            previousValue = volume.getVoxelLinearInterpolate(previousPos);
             // Check if value is higher than isoValue
             if (value > iso_value) {
                 alpha = 1;
                 
+<<<<<<< HEAD
                 
                 
+=======
+                bisection_accuracy(currentPos, increments, sampleStep, previousValue, value, iso_value);
+
+>>>>>>> 472b4a5b5a816ca6c72156932752803e10ea2790
                 if (shadingMode) {
                     TFColor voxel_color = new TFColor(r, g, b, alpha);
                     voxel_color = computePhongShading(voxel_color, gradients.getGradient(currentPos), increments, rayVector);
