@@ -380,6 +380,42 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         return finalColor;
     }
     
+    /**
+     * 2D Transfer Function
+     * @param finalColor
+     * @param currentPos
+     * @param increments
+     * @param nrSamples
+     * @return 
+     */
+    public TFColor computeTranferFunction2D(TFColor finalColor, double[] currentPos, double[] increments, int nrSamples) {
+        
+        //base case: stop at end of ray OR when opacity is close to max
+        if( nrSamples < 0 ) { return new TFColor(0,0,0,0); }
+        
+        //emitted color
+        int value = (int) volume.getVoxelLinearInterpolate(currentPos);
+        
+        double mag = this.gradients.getGradient(currentPos).mag;
+
+        //increment position
+        for (int i = 0; i < 3; i++) { currentPos[i] += increments[i]; }
+        nrSamples--;
+        
+        TFColor currColor = this.tFunc2D.color;
+        double currentOpacity = this.computeOpacity2DTF(tFunc2D.baseIntensity, tFunc2D.radius, value, mag) * currColor.a; 
+        
+        //recursive call
+        TFColor nextColor = computeTranferFunction2D(finalColor, currentPos, increments, nrSamples);
+        
+        finalColor.r = currentOpacity * currColor.r + (1 - currentOpacity) * nextColor.r;
+        finalColor.g = currentOpacity * currColor.g + (1 - currentOpacity) * nextColor.g;
+        finalColor.b = currentOpacity * currColor.b + (1 - currentOpacity) * nextColor.b;
+        finalColor.a = currentOpacity + (1 - currentOpacity) * nextColor.a;
+        
+        return finalColor;
+    }
+    
     //////////////////////////////////////////////////////////////////////
     ///////////////// FUNCTION TO BE IMPLEMENTED /////////////////////////
     ////////////////////////////////////////////////////////////////////// 
