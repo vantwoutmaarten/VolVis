@@ -261,7 +261,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             if (value > iso_value) {
                 alpha = 1;
                 
-                bisection_accu  racy(currentPos, increments, sampleStep, previousValue, value, iso_value);
+                bisection_accuracy(currentPos, increments, sampleStep, previousValue, value, iso_value);
 
                 if (shadingMode) {
                     TFColor voxel_color = new TFColor(r, g, b, alpha);
@@ -294,7 +294,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     // Given the current sample position, increment vector of the sample (vector from previous sample to current sample) and sample Step. 
    // Previous sample value and current sample value, isovalue value
     // The function should search for a position where the iso_value passes that it is more precise.
-   public void  bisection_accuracy (double[] currentPos, double[] increments,double sampleStep, float previousvalue,float value, float iso_value)
+   public void  bisection_accuracy (double[] currentPos, double[] increments,double sampleStep, float previousvalue, float value, float iso_value)
    {
        
         //Determine the previous position
@@ -371,13 +371,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         if (compositingMode) {
             // 1D transfer function 
-            voxel_color = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
+            voxel_color = computeTransferFunction1D(new TFColor(0,0,0,0), currentPos, increments, nrSamples, rayVector);
             opacity = (voxel_color.r > 0 || voxel_color.g > 0 || voxel_color.b > 0) ? 1 : 0;
         }    
         if (tf2dMode) {
             // 2D transfer function 
-            voxel_color = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
-            opacity = (voxel_color.r > 0 || voxel_color.g > 0 || voxel_color.b > 0) ? 1 : 0;
+            voxel_color = computeTransferFunction2D(new TFColor(0,0,0,0), currentPos, increments, nrSamples, rayVector);
+            opacity = voxel_color.a;
         }
 //        if (shadingMode) {
 //            // Shading mode on
@@ -401,14 +401,14 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
      * @param currentPos
      * @param increments
      * @param nrSamples
+     * @param rayVector
      * @return 
      */
-    public TFColor computeTranferFunction1D(double[] currentPos, double[] increments, int nrSamples, double[] rayVector) {
+    public TFColor computeTransferFunction1D(TFColor finalColor, double[] currentPos, double[] increments, int nrSamples, double[] rayVector) {
         
         //emitted color
         int value = (int) volume.getVoxelLinearInterpolate(currentPos);
         TFColor currColor = this.tFunc.getColor(value);
-        TFColor compColor = new TFColor(0,0,0,0);
 
         //base case: stop at end of ray OR when opacity is close to max
         if( nrSamples <= 0 || currColor.a >= 0.999 ) { return currColor; }
@@ -423,13 +423,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         nrSamples--;
         
         //recursive call
-        TFColor nextColor = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
+        TFColor nextColor = computeTransferFunction1D(finalColor, currentPos, increments, nrSamples, rayVector);
         
-        compColor.r = currColor.a * currColor.r + (1 - currColor.a) * nextColor.r;
-        compColor.g = currColor.a * currColor.g + (1 - currColor.a) * nextColor.g;
-        compColor.b = currColor.a * currColor.b + (1 - currColor.a) * nextColor.b;
+        finalColor.r = currColor.a * currColor.r + (1 - currColor.a) * nextColor.r;
+        finalColor.g = currColor.a * currColor.g + (1 - currColor.a) * nextColor.g;
+        finalColor.b = currColor.a * currColor.b + (1 - currColor.a) * nextColor.b;
         
-        return compColor;
+        return finalColor;
     }
     
     /**
@@ -440,7 +440,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
      * @param nrSamples
      * @return 
      */
-    public TFColor computeTranferFunction2D(TFColor finalColor, double[] currentPos, double[] increments, int nrSamples) {
+    public TFColor computeTransferFunction2D(TFColor finalColor, double[] currentPos, double[] increments, int nrSamples, double[] rayVector) {
         
         //base case: stop at end of ray OR when opacity is close to max
         if( nrSamples < 0 ) { return new TFColor(0,0,0,0); }
@@ -457,8 +457,13 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         TFColor currColor = this.tFunc2D.color;
         double currentOpacity = this.computeOpacity2DTF(tFunc2D.baseIntensity, tFunc2D.radius, value, mag) * currColor.a; 
         
+        // Shading Mode Implementation
+        if(shadingMode && (currColor.r > 0 || currColor.g > 0 || currColor.b > 0)){
+            currColor = computePhongShading(currColor, this.gradients.getGradient(currentPos), increments, rayVector);
+        }
+        
         //recursive call
-        TFColor nextColor = computeTranferFunction2D(finalColor, currentPos, increments, nrSamples);
+        TFColor nextColor = computeTransferFunction2D(finalColor, currentPos, increments, nrSamples, rayVector);
         
         finalColor.r = currentOpacity * currColor.r + (1 - currentOpacity) * nextColor.r;
         finalColor.g = currentOpacity * currColor.g + (1 - currentOpacity) * nextColor.g;
@@ -518,9 +523,8 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         double cosTheta = VectorMath.dotproduct(normLightVector, normGradientVector);
 
         //Cosine Phi
-//        double[] gradientVectorDouble = {normGradientVector[0] * 2, normGradientVector[1] * 2, normGradientVector[2] * 2};
-//        double x = VectorMath.dotproduct(gradientVectorDouble, normLightVector);
-        double x = VectorMath.dotproduct(normGradientVector, normLightVector);
+        double[] gradientVectorDouble = {normGradientVector[0] * 2, normGradientVector[1] * 2, normGradientVector[2] * 2};
+        double x = VectorMath.dotproduct(gradientVectorDouble, normLightVector);
         double[] gradientVector_x = {normGradientVector[0] * x, normGradientVector[1] * x, normGradientVector[2] * x};
         double[] R = {gradientVector_x[0] - normLightVector[0], gradientVector_x[1] - normLightVector[1], gradientVector_x[2] - normLightVector[2]};
         double cosPhi = VectorMath.dotproduct(normRayVector, R);
@@ -646,6 +650,19 @@ public double computeOpacity2DTF(double material_value, double material_r,
     double opacity = 0.0;
 
     // to be implemented
+    
+    //Angle of the Widget
+    double widgetAngle = Math.atan(tFunc2D.radius / gradients.getMaxGradientMagnitude());
+    
+    //Angle of the Voxal based on magnitude and intensity
+    double voxelAngle = Math.atan(
+            Math.abs(voxelValue - tFunc2D.baseIntensity) / gradMagnitude);
+    
+    //if the voxel has lower angle compared to widget
+    if(voxelAngle < widgetAngle){
+        //calculate opacity 
+        opacity = (1 - (voxelAngle / widgetAngle)) * tFunc2D.color.a;  
+    }
     
     return opacity;
 }  
