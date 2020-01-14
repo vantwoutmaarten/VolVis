@@ -261,7 +261,7 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             if (value > iso_value) {
                 alpha = 1;
                 
-                bisection_accuracy(currentPos, increments, sampleStep, previousValue, value, iso_value);
+                bisection_accu  racy(currentPos, increments, sampleStep, previousValue, value, iso_value);
 
                 if (shadingMode) {
                     TFColor voxel_color = new TFColor(r, g, b, alpha);
