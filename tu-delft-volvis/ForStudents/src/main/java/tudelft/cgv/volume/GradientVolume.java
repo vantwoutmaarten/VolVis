@@ -64,9 +64,9 @@ public class GradientVolume {
             
             // to be implemented
             
-        result.x = 1;
-        result.y = 1;
-        result.z = 1;
+        result.x = (1 - factor)*g0.x + factor*g1.x;
+        result.y = (1 - factor)*g0.y + factor*g1.y;
+        result.z = (1 - factor)*g0.z + factor*g1.z;
         result.mag = (float) Math.sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
     }
 	
@@ -102,10 +102,10 @@ public class GradientVolume {
         VoxelGradient vg6 = new VoxelGradient();
       
         // Interpolation
-        interpolate(getGradient(x, y, z), getGradient(x+1, y, z), fac_x, vg0 );              //t0
-        interpolate(getGradient(x, y+1, z), getGradient(x+1, y+1, z), fac_x, vg1);           //t1
-        interpolate(getGradient(x, y, z+1), getGradient(x+1, y, z+1), fac_x, vg2);           //t2    
-        interpolate(getGradient(x, y+1, z+1), getGradient(x+1, y+1, z+1), fac_x, vg3);       //t3
+        interpolate(getGradient(x, y, z), getGradient(x+1, y, z), fac_x, vg0 );       
+        interpolate(getGradient(x, y+1, z), getGradient(x+1, y+1, z), fac_x, vg1);     
+        interpolate(getGradient(x, y, z+1), getGradient(x+1, y, z+1), fac_x, vg2);  
+        interpolate(getGradient(x, y+1, z+1), getGradient(x+1, y+1, z+1), fac_x, vg3);     
         interpolate(vg0, vg1, fac_y, vg4);
         interpolate(vg2, vg3, fac_y, vg5);
         interpolate(vg4, vg5, fac_z, vg6);
