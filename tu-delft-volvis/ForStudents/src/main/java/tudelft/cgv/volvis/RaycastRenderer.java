@@ -240,9 +240,14 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
               
         //Initialization of the colors as floating point values
         double r, g, b;
-        r = g = b = 0.0;
         double alpha = 0.0;
         double value;
+        
+        
+         // isoColor contains the isosurface color from the interface
+         r = isoColor.r;
+         g = isoColor.g;
+         b = isoColor.b;
         
               
         // To be Implemented this function right now just gives back a constant color
@@ -252,6 +257,15 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
             // Check if value is higher than isoValue
             if (value > iso_value) {
                 alpha = 1;
+                
+                if (shadingMode) {
+                    TFColor voxel_color = new TFColor(r, g, b, alpha);
+                    voxel_color = computePhongShading(voxel_color, gradients.getGradient(currentPos), increments, rayVector);
+                    r = voxel_color.r;
+                    g = voxel_color.g;
+                    b = voxel_color.b;
+                    break;
+                }
             }
             
             // Update currentPos
@@ -263,10 +277,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
         } while (nrSamples > 0);
         
         
-         // isoColor contains the isosurface color from the interface
-         r = isoColor.r;
-         g = isoColor.g;
-         b = isoColor.b;
         //computes the color
         int color = computeImageColor(r,g,b,alpha);
         return color;
@@ -356,19 +366,19 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         if (compositingMode) {
             // 1D transfer function 
-            voxel_color = computeTranferFunction1D(new TFColor(r,g,b,opacity), currentPos, increments, nrSamples);
+            voxel_color = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
             opacity = (voxel_color.r > 0 || voxel_color.g > 0 || voxel_color.b > 0) ? 1 : 0;
         }    
         if (tf2dMode) {
             // 2D transfer function 
-            voxel_color = computeTranferFunction1D(new TFColor(r,g,b,opacity), currentPos, increments, nrSamples);
+            voxel_color = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
             opacity = (voxel_color.r > 0 || voxel_color.g > 0 || voxel_color.b > 0) ? 1 : 0;
         }
-        if (shadingMode) {
-            // Shading mode on
-            voxel_color.r = 1;voxel_color.g =0;voxel_color.b =1;voxel_color.a =1;
-            opacity = 1;     
-        }
+//        if (shadingMode) {
+//            // Shading mode on
+//            voxel_color.r = 1;voxel_color.g =0;voxel_color.b =1;voxel_color.a =1;
+//            opacity = 1;     
+//        }
             
         r = voxel_color.r ;
         g = voxel_color.g ;
@@ -388,27 +398,33 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
      * @param nrSamples
      * @return 
      */
-    public TFColor computeTranferFunction1D(TFColor finalColor, double[] currentPos, double[] increments, int nrSamples) {
+    public TFColor computeTranferFunction1D(double[] currentPos, double[] increments, int nrSamples, double[] rayVector) {
         
         //emitted color
         int value = (int) volume.getVoxelLinearInterpolate(currentPos);
         TFColor currColor = this.tFunc.getColor(value);
+        TFColor compColor = new TFColor(0,0,0,0);
 
         //base case: stop at end of ray OR when opacity is close to max
         if( nrSamples <= 0 || currColor.a >= 0.999 ) { return currColor; }
+        
+        // Shading Mode Implementation
+        if(shadingMode && (currColor.r > 0 || currColor.g > 0 || currColor.b > 0)){
+            currColor = computePhongShading(currColor, this.gradients.getGradient(currentPos), increments, rayVector);
+        }
         
         //increment position
         for (int i = 0; i < 3; i++) {currentPos[i] += increments[i];}
         nrSamples--;
         
         //recursive call
-        TFColor nextColor = computeTranferFunction1D(finalColor, currentPos, increments, nrSamples);
+        TFColor nextColor = computeTranferFunction1D(currentPos, increments, nrSamples, rayVector);
         
-        finalColor.r = currColor.a * currColor.r + (1 - currColor.a) * nextColor.r;
-        finalColor.g = currColor.a * currColor.g + (1 - currColor.a) * nextColor.g;
-        finalColor.b = currColor.a * currColor.b + (1 - currColor.a) * nextColor.b;
+        compColor.r = currColor.a * currColor.r + (1 - currColor.a) * nextColor.r;
+        compColor.g = currColor.a * currColor.g + (1 - currColor.a) * nextColor.g;
+        compColor.b = currColor.a * currColor.b + (1 - currColor.a) * nextColor.b;
         
-        return finalColor;
+        return compColor;
     }
     
     /**
@@ -456,68 +472,63 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
 
         // To be implemented 
         
-        // Material color == voxel_color
-        // Material property k, alfa
-        double ka = 0.1;
-        double kd = 0.7;
-        double ks = 0.2;
-        int alfa = 100;
+        // Voxel color is the Material color
+        // Material constants ambiant k_a, diffuse k_d, specular k_s, alpha
+        double k_a = 0.1;
+        double k_d = 0.7;
+        double k_s = 0.2;
+        int alpha = 100;
         
-        double[] lightProperty_a = {1,1,1}; 
-        double[] lightProperty_d = {1,1,1}; 
-        double[] lightProperty_s = {1,1,1}; 
+        // Light property color
+        double[] light_a = {1,1,1}; 
+        double[] light_d = {1,1,1}; 
+        double[] light_s = {1,1,1}; 
 
         TFColor color;
+        
+        double lightVectorLength = VectorMath.length(lightVector);
+        double rayVectorLength = VectorMath.length(rayVector);
 
-        //fish doesn't exist
-        //if (gradient.x == 0 && gradient.y == 0 && gradient.z == 0) return voxel_color; 
-        if(gradient.mag == 0)   return voxel_color;
+        //Capture unavailability  cases
+        if(gradient.mag == 0 || lightVectorLength == 0 || rayVectorLength == 0)   return voxel_color;
 
-        //norm gradiente
-        double[] gradVec = {gradient.x / gradient.mag, gradient.y / gradient.mag, gradient.z / gradient.mag};
+        //Normalized Gradient Vector
+        double[] normGradientVector = { 
+            gradient.x / gradient.mag, 
+            gradient.y / gradient.mag, 
+            gradient.z / gradient.mag 
+        };
 
-        //norm light
-        double lightNorm = VectorMath.length(lightVector);  //Math.sqrt(Math.pow(lightVector[0], 2) + Math.pow(lightVector[1], 2) + Math.pow(lightVector[2], 2));
-        if(lightNorm == 0) return voxel_color;
-        double[] lightNormVector = {lightVector[0] / lightNorm, lightVector[1] / lightNorm, lightVector[2] / lightNorm};
+        //Normalized Light Vector
+        double[] normLightVector = { 
+            lightVector[0] / lightVectorLength, 
+            lightVector[1] / lightVectorLength, 
+            lightVector[2] / lightVectorLength 
+        };
 
-        //norm ray
-        double rayNorm = VectorMath.length(rayVector);  //Math.sqrt(Math.pow(rayVector[0], 2) + Math.pow(rayVector[1], 2) + Math.pow(rayVector[2], 2));
-        if(rayNorm == 0) return voxel_color;
-        double[] rayNormVector = {rayVector[0] / rayNorm, rayVector[1] / rayNorm, rayVector[2] / rayNorm};
+        //Normalized Ray Vector ray
+        double[] normRayVector = {rayVector[0] / rayVectorLength, rayVector[1] / rayVectorLength, rayVector[2] / rayVectorLength};
 
-        //cos 1
-        double cos1 = VectorMath.dotproduct(lightNormVector, gradVec);
+        //Cosine Theta
+        double cosTheta = VectorMath.dotproduct(normLightVector, normGradientVector);
 
-        //R
-        double[] twice_gradVec = {gradVec[0] * 2, gradVec[1] * 2, gradVec[2] * 2};
-        double x = VectorMath.dotproduct(twice_gradVec, lightNormVector);
-        double[] x_gradVec = {gradVec[0] * x, gradVec[1] * x, gradVec[2] * x};
-        double[] R = {x_gradVec[0] - lightNormVector[0], x_gradVec[1] - lightNormVector[1], x_gradVec[2] - lightNormVector[2]};
-        double cos2 = VectorMath.dotproduct(rayNormVector,R );
+        //Cosine Phi
+//        double[] gradientVectorDouble = {normGradientVector[0] * 2, normGradientVector[1] * 2, normGradientVector[2] * 2};
+//        double x = VectorMath.dotproduct(gradientVectorDouble, normLightVector);
+        double x = VectorMath.dotproduct(normGradientVector, normLightVector);
+        double[] gradientVector_x = {normGradientVector[0] * x, normGradientVector[1] * x, normGradientVector[2] * x};
+        double[] R = {gradientVector_x[0] - normLightVector[0], gradientVector_x[1] - normLightVector[1], gradientVector_x[2] - normLightVector[2]};
+        double cosPhi = VectorMath.dotproduct(normRayVector, R);
 
-        double r = lightProperty_a[0] * ka * voxel_color.r + lightProperty_d[0] * kd * voxel_color.r * cos1 + lightProperty_s[0] * ks * voxel_color.r * Math.pow(cos2, alfa);
-        double g = lightProperty_a[1] * ka * voxel_color.g + lightProperty_d[1] * kd * voxel_color.g * cos1 + lightProperty_s[1] * ks * voxel_color.g * Math.pow(cos2, alfa);
-        double b = lightProperty_a[2] * ka * voxel_color.b + lightProperty_d[2] * kd * voxel_color.b * cos1 + lightProperty_s[2] * ks * voxel_color.b * Math.pow(cos2, alfa);
+        //Calculate Seperate Colors
+        double r = light_a[0] * k_a * voxel_color.r + light_d[0] * k_d * voxel_color.r * cosTheta + light_s[0] * k_s * voxel_color.r * Math.pow(cosPhi, alpha);
+        double g = light_a[1] * k_a * voxel_color.g + light_d[1] * k_d * voxel_color.g * cosTheta + light_s[1] * k_s * voxel_color.g * Math.pow(cosPhi, alpha);
+        double b = light_a[2] * k_a * voxel_color.b + light_d[2] * k_d * voxel_color.b * cosTheta + light_s[2] * k_s * voxel_color.b * Math.pow(cosPhi, alpha);
       
-        if (r < 0) {
-            r = 0;
-        }
-        if (g < 0) {
-            g = 0;
-        }
-        if (b < 0) {
-            b = 0;
-        }
-        if (r > 1) {
-            r = 1;
-        }
-        if (g > 1) {
-            g = 1;
-        }
-        if (b > 1) {
-            b = 1;
-        }
+        //Non-negative operators
+        r = Math.max(0, Math.min(1, r));
+        g = Math.max(0, Math.min(1, g));
+        b = Math.max(0, Math.min(1, b));
        
         color = new TFColor(r, g, b, voxel_color.a);
         
