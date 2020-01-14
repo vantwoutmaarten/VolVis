@@ -281,9 +281,40 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
     // The function should search for a position where the iso_value passes that it is more precise.
    public void  bisection_accuracy (double[] currentPos, double[] increments,double sampleStep, float previousvalue,float value, float iso_value)
    {
-
-           // to be implemented
-   }
+       
+        //Determine the previous position
+        double[] previousPos = {currentPos[0] - increments[0], currentPos[1] - increments[1], currentPos[2] - increments[2]};
+        //determine the bounds outer position bounds of the binary search
+        double[] lowPos = new double[3];  
+        double[] highPos= new double[3];  
+        if (Math.floor(previousvalue) < iso_value && Math.floor(value) >= iso_value) {
+            lowPos = previousPos;
+            highPos  = currentPos;
+        }
+        else {
+            lowPos = currentPos;
+            highPos  = previousPos;
+        }
+        
+        float middleValue =0;
+        double[] middlePos = new double[3];
+        //The binary search algorithm between the low- and highPos
+         do {
+            VectorMath.setVector(middlePos, (lowPos[0] + highPos[0]) / 2, (lowPos[1] + highPos[1]) / 2, (lowPos[2] + highPos[2]) / 2);
+            middleValue = volume.getVoxelLinearInterpolate(middlePos);
+            if (Math.floor(middleValue) == Math.floor(iso_value)) {
+                lowPos = middlePos;
+                break;
+            } else if (Math.floor(middleValue) > Math.floor(iso_value)) {
+                lowPos = middlePos;
+            } else if (Math.floor(middleValue) < Math.floor(iso_value)) {
+                highPos = middlePos;
+            }} while((Math.floor(VectorMath.distance(lowPos, highPos)) > 0));
+         
+         //Replace the initial current positions with the found lower Position.
+         currentPos = lowPos;
+     }
+         
     
     //////////////////////////////////////////////////////////////////////
     ///////////////// FUNCTION TO BE IMPLEMENTED /////////////////////////
