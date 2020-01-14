@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 tudelft\cgv\gui\RaycastRendererPanel$4.class
 tudelft\cgv\gui\TransferFunction2DView$1.class
 tudelft\cgv\gui\VolVisApplication$2.class
@@ -42,3 +43,7 @@ tudelft\cgv\gui\VolVisApplication$3.class
 tudelft\cgv\volume\VoxelGradient.class
 tudelft\cgv\gui\TransferFunction2DEditor$2.class
 tudelft\cgv\volvis\TransferFunction.class
+=======
+tudelft/cgv/gui/TransferFunctionView$1.class
+tudelft/cgv/gui/TransferFunction2DView$1.class
+>>>>>>> a96cbd4a7299b10beb29eaca222b4264a272d8e2
