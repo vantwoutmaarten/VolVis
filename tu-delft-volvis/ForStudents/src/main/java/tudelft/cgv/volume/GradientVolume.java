@@ -64,9 +64,9 @@ public class GradientVolume {
             
             // to be implemented
             
-        result.x = (1 - factor)*g0.x + factor*g1.x;
-        result.y = (1 - factor)*g0.y + factor*g1.y;
-        result.z = (1 - factor)*g0.z + factor*g1.z;
+        result.x = (1 - factor) * g0.x + factor * g1.x;
+        result.y = (1 - factor) * g0.y + factor * g1.y;
+        result.z = (1 - factor) * g0.z + factor * g1.z;
         result.mag = (float) Math.sqrt(result.x * result.x + result.y * result.y + result.z * result.z);
     }
 	
