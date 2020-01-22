@@ -265,14 +265,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                 
                 bisection_accuracy(currentPos, increments, sampleStep, previousValue, value, iso_value);
 
-<<<<<<< HEAD
-                if (shadingMode) {
-                    TFColor voxel_color = new TFColor(r, g, b, alpha);
-                    voxel_color = computePhongShading(voxel_color, gradients.getGradient(currentPos), increments, rayVector);
-                    r = voxel_color.r;
-                    g = voxel_color.g;
-                    b = voxel_color.b;
-=======
                 if (shadingMode || blendingMode) {
                     if (shadingMode) {
                         TFColor voxel_color = new TFColor(r, g, b, alpha);
@@ -288,7 +280,6 @@ public class RaycastRenderer extends Renderer implements TFChangeListener {
                         g = voxel_color.g;
                         b = voxel_color.b;
                     }
->>>>>>> e46da38d97242a217c7e3a1fe1db40ba16ddec67
                     break;
                 }
             }
@@ -731,12 +722,15 @@ public double computeOpacity2DTF(double material_value, double material_r,
     
     //Angle of the Voxal based on magnitude and intensity
     double voxelAngle = Math.atan(
-            Math.abs(voxelValue - tFunc2D.baseIntensity) / gradMagnitude);
+            Math.abs(voxelValue - material_value) / gradMagnitude);
     
     //if the voxel has lower angle compared to widget
     if(voxelAngle < widgetAngle){
         //calculate opacity 
-        opacity = (1 - (voxelAngle / widgetAngle));  
+//        opacity = (1 - (voxelAngle / widgetAngle));  
+        opacity = 1;
+    } else {
+        opacity = 0;
     }
     
     return opacity;
