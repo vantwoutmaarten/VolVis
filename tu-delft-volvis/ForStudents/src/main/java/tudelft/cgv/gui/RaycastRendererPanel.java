@@ -62,6 +62,7 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         Resolution_label = new javax.swing.JLabel();
         colorButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
+        blendingCheckbox = new javax.swing.JCheckBox();
 
         jLabel1.setText("Rendering time (ms):");
 
@@ -150,30 +151,36 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
 
         jLabel6.setText("Color");
 
+        blendingCheckbox.setText("Distance Color Blending");
+        blendingCheckbox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                blendingCheckboxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(renderingSpeedLabel)
                         .addGap(304, 304, 304))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(Resolution_label)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(Resolution, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(compositingButton, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(tf2dButton, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(mipButton, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(slicerButton, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(shadingCheckbox, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addComponent(compositingButton)
+                            .addComponent(tf2dButton)
+                            .addComponent(mipButton)
+                            .addComponent(slicerButton)
+                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(IsoSurface)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel2)
@@ -182,7 +189,9 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel6)
                                 .addGap(18, 18, 18)
-                                .addComponent(colorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(colorButton, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(shadingCheckbox)
+                            .addComponent(blendingCheckbox))
                         .addGap(0, 117, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
@@ -208,9 +217,11 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
                 .addComponent(compositingButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tf2dButton)
-                .addGap(27, 27, 27)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(shadingCheckbox)
-                .addGap(18, 18, 18)
+                .addGap(4, 4, 4)
+                .addComponent(blendingCheckbox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(Resolution, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(Resolution_label))
@@ -267,11 +278,16 @@ public class RaycastRendererPanel extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_colorButtonActionPerformed
 
+    private void blendingCheckboxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_blendingCheckboxActionPerformed
+        renderer.setBlendingMode(blendingCheckbox.isSelected());
+    }//GEN-LAST:event_blendingCheckboxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton IsoSurface;
     private javax.swing.JTextField IsovalueTextBox;
     private javax.swing.JSlider Resolution;
     private javax.swing.JLabel Resolution_label;
+    private javax.swing.JCheckBox blendingCheckbox;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton colorButton;
     private javax.swing.JRadioButton compositingButton;
